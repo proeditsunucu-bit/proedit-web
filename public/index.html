@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProEdit SMP - Kayıt Ol & Giriş Yap</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; }
+        h1 { margin-bottom: 20px; color: #00e676; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #333; border-radius: 6px; background: #2a2a2a; color: white; }
+        button { width: 96%; padding: 12px; background: #00e676; border: none; border-radius: 6px; color: black; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #00c853; }
+        #msg { margin-top: 15px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>PROEDIT SMP</h1>
+        <p>Kayıt Ol ve 500.000$ Ödülünü Al!</p>
+        <input type="text" id="username" placeholder="Minecraft Oyuncu Adı">
+        <input type="password" id="password" placeholder="Şifre">
+        <button onclick="register()">KAYIT OL</button>
+        <div id="msg"></div>
+    </div>
+
+    <script>
+        async function register() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const msg = document.getElementById('msg');
+
+            msg.innerText = "İşleniyor...";
+
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+            msg.innerText = data.message;
+            msg.style.color = data.success ? '#00e676' : '#ff5252';
+        }
+    </script>
+</body>
+</html>
