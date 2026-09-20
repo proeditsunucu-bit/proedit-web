@@ -93,7 +93,7 @@
             <input type="password" id="reg-password" placeholder="Şifre">
             <br>
             <button onclick="registerUser()">KAYIT OL</button>
-            <p id="reg-msg" style="margin-top: 10px; font-size: 14px;"></p>
+            <p id="reg-msg" style="margin-top: 10px; font-size: 14px; word-break: break-all;"></p>
         </div>
 
         <!-- LAUNCHER İNDİRME ALANI -->
@@ -140,17 +140,12 @@
                     msg.innerText = "✅ Kayıt başarılı! Şimdi Launcher'ı indirip giriş yapabilirsiniz.";
                 } else {
                     const errData = await response.json();
-                    if (errData.code === "23505") {
-                        msg.style.color = "#ff5555";
-                        msg.innerText = "❌ Bu kullanıcı adı zaten alınmış!";
-                    } else {
-                        msg.style.color = "#ff5555";
-                        msg.innerText = "❌ Kayıt başarısız oldu.";
-                    }
+                    msg.style.color = "#ff5555";
+                    msg.innerText = "❌ Hata: " + (errData.message || errData.details || JSON.stringify(errData));
                 }
             } catch (err) {
                 msg.style.color = "#ff5555";
-                msg.innerText = "Bağlantı hatası oluştu.";
+                msg.innerText = "❌ Bağlantı Detayı: " + err.message;
             }
         }
     </script>
