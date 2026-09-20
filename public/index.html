@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>proeditSMP - Resmi Minecraft Web Portalı</title>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #121212; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        .season-bar {
+            background: linear-gradient(90deg, #ff8c00, #ff0055);
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 15px;
+            letter-spacing: 1px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background: #1a1a1a;
+            border-bottom: 2px solid #333;
+        }
+        .logo { font-size: 24px; font-weight: bold; color: #55ff55; }
+        .user-panel { display: flex; align-items: center; gap: 15px; }
+
+        .auth-btn {
+            background: #55ff55; color: #000; border: none; padding: 10px 18px;
+            font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s;
+        }
+        .auth-btn:hover { background: #44cc44; }
+
+        .user-profile { display: none; align-items: center; gap: 10px; }
+        .user-profile img { width: 36px; height: 36px; border-radius: 6px; border: 2px solid #55ff55; }
+
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+
+        .stats-card {
+            background: #1e1e1e; padding: 20px; border-radius: 10px;
+            display: flex; justify-content: space-around; text-align: center;
+            border: 1px solid #333; margin-bottom: 30px;
+        }
+        .stat-box h3 { color: #888; font-size: 13px; text-transform: uppercase; }
+        .stat-box p { font-size: 26px; font-weight: bold; color: #55ff55; margin-top: 5px; }
+
+        .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+        .card { background: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333; }
+        .card h2 { color: #55ff55; margin-bottom: 15px; font-size: 20px; }
+
+        .news-item { background: #2a2a2a; padding: 12px; border-radius: 6px; margin-bottom: 12px; }
+        .news-item h4 { color: #ffaa00; margin-bottom: 5px; }
+        .news-item p { font-size: 13px; color: #ccc; line-height: 1.4; }
+
+        .launcher-card {
+            margin-top: 30px; background: linear-gradient(135deg, #1e1e1e, #252525);
+            padding: 30px; text-align: center; border-radius: 10px; border: 2px dashed #55ff55;
+        }
+        .launcher-btn {
+            background: #55ff55; color: #000; border: none; padding: 14px 28px;
+            font-size: 16px; font-weight: bold; border-radius: 6px; margin-top: 15px; cursor: pointer;
+        }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 999;
+        }
+        .modal-content {
+            background: #1e1e1e; padding: 30px; border-radius: 10px; width: 320px; text-align: center;
+            border: 1px solid #333;
+        }
+        .modal-content input {
+            width: 100%; padding: 10px; margin: 8px 0; background: #2a2a2a; border: 1px solid #333;
+            color: #fff; border-radius: 5px; outline: none;
+        }
+        .modal-content input:focus { border-color: #55ff55; }
+    </style>
+</head>
+<body>
+
+<div class="season-bar">🔥 SEZON 1 BAŞLADI! SİTEDEN KAYIT OL, ANINDA 500.000$ ÖDÜLÜ KAP! 🔥</div>
+
+<nav>
+    <div class="logo">proeditSMP</div>
+    <div class="user-panel">
+        <button class="auth-btn" id="open-auth" onclick="toggleModal(true)">Giriş Yap / Kayıt Ol</button>
+        <div class="user-profile" id="user-profile">
+            <img id="player-head" src="" alt="Kafa">
+            <span id="player-name" style="font-weight: bold;"></span>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="stats-card">
+        <div class="stat-box">
+            <h3>ANLIK OYUNCU</h3>
+            <p id="online-players">Yükleniyor...</p>
+        </div>
+        <div class="stat-box">
+            <h3>SUNUCU DURUMU</h3>
+            <p id="server-status" style="color: #55ff55;">Çevrimiçi</p>
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <div class="card">
+            <h2>📢 Haberler & Duyurular</h2>
+            <div class="news-item">
+                <h4>Sezon 1 Resmi Olarak Açıldı!</h4>
+                <p>Yeni harita, güncellenmiş pazar sistemi ve BoxPvP alanları ile Sezon 1 başladı.</p>
+            </div>
+            <div class="news-item">
+                <h4>Siteden Kayıt Ödülü</h4>
+                <p>Web sitemiz üzerinden kayıt olan tüm oyunculara anında 500.000$ oyun içi para aktarılıyor!</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🌐 Sunucu Bilgisi</h2>
+            <p style="font-size: 13px; color: #aaa;">IP Adresi:</p>
+            <p style="font-size: 15px; font-weight: bold; color: #55ff55; margin-bottom: 12px;">proeditsmp.falixsrv.me</p>
+            <p style="font-size: 13px; color: #aaa;">Desteklenen Sürümler:</p>
+            <p style="font-size: 15px; font-weight: bold;">1.8 - 1.20.x</p>
+        </div>
+    </div>
+
+    <div class="launcher-card">
+        <h2>🚀 proeditSMP Launcher (Yakında)</h2>
+        <p style="color: #aaa; margin-top: 5px;">Tek tıkla sunucuya bağlan, özel modları otomatik yükle!</p>
+        <button class="launcher-btn" onclick="alert('proeditSMP Launcher yapım aşamasındadır!')">ProEditSMP Launcher İndir (.exe)</button>
+    </div>
+</div>
+
+<div class="modal" id="auth-modal">
+    <div class="modal-content">
+        <h3 id="modal-title" style="margin-bottom: 15px; color: #55ff55;">Giriş Yap / Kayıt Ol</h3>
+        <input type="text" id="username" placeholder="Minecraft Kullanıcı Adı">
+        <input type="password" id="password" placeholder="Şifre">
+        <button class="auth-btn" style="width: 100%; margin-top: 10px;" onclick="handleAuth('register')">Kayıt Ol & 500k Al</button>
+        <button class="auth-btn" style="width: 100%; margin-top: 5px; background: #333; color: #fff;" onclick="handleAuth('login')">Giriş Yap</button>
+        <button onclick="toggleModal(false)" style="background: none; border: none; color: #888; margin-top: 12px; cursor: pointer;">Kapat</button>
+        <div id="modal-msg" style="margin-top: 10px; font-size: 12px;"></div>
+    </div>
+</div>
+
+<script>
+    function toggleModal(show) {
+        document.getElementById('auth-modal').style.display = show ? 'flex' : 'none';
+    }
+
+    async function handleAuth(type) {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const msg = document.getElementById('modal-msg');
+
+        if(!username || !password) {
+            msg.style.color = '#ff5555';
+            msg.innerText = 'Lütfen tüm alanları doldurun!';
+            return;
+        }
+
+        const res = await fetch(`/api/${type}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if(res.ok) {
+            msg.style.color = '#55ff55';
+            msg.innerText = data.message;
+            setTimeout(() => {
+                toggleModal(false);
+                setUserProfile(data.username || username);
+            }, 1000);
+        } else {
+            msg.style.color = '#ff5555';
+            msg.innerText = data.message;
+        }
+    }
+
+    function setUserProfile(name) {
+        document.getElementById('open-auth').style.display = 'none';
+        document.getElementById('user-profile').style.display = 'flex';
+        document.getElementById('player-name').innerText = name;
+        document.getElementById('player-head').src = `https://visage.surgeplay.com/head/64/${name}`;
+    }
+
+    async function fetchServerStats() {
+        const statusEl = document.getElementById('server-status');
+        const playersEl = document.getElementById('online-players');
+        
+        try {
+            const res = await fetch('https://api.mcsrvstat.us/2/eu9-free.falixserver.net:24982');
+            const data = await res.json();
+            
+            if (data.online) {
+                statusEl.innerText = 'Çevrimiçi';
+                statusEl.style.color = '#55ff55';
+                playersEl.innerText = `${data.players.online} / ${data.players.max}`;
+            } else {
+                statusEl.innerText = 'Kapalı';
+                statusEl.style.color = '#ff5555';
+                playersEl.innerText = '0 / 0';
+            }
+        } catch (e) {
+            statusEl.innerText = 'Kapalı';
+            statusEl.style.color = '#ff5555';
+            playersEl.innerText = '0 / 0';
+        }
+    }
+
+    fetchServerStats();
+    setInterval(fetchServerStats, 30000);
+</script>
+
+</body>
+</html>
