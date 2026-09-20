@@ -135,12 +135,18 @@
                     body: JSON.stringify({ username: username, password: password })
                 });
 
-                if (response.ok) {
+                if (response.ok || response.status === 201) {
                     msg.style.color = "#55ff55";
                     msg.innerText = "✅ Kayıt başarılı! Şimdi Launcher'ı indirip giriş yapabilirsiniz.";
                 } else {
-                    msg.style.color = "#ff5555";
-                    msg.innerText = "❌ Bu kullanıcı adı zaten alınmış!";
+                    const errData = await response.json();
+                    if (errData.code === "23505") {
+                        msg.style.color = "#ff5555";
+                        msg.innerText = "❌ Bu kullanıcı adı zaten alınmış!";
+                    } else {
+                        msg.style.color = "#ff5555";
+                        msg.innerText = "❌ Kayıt başarısız oldu.";
+                    }
                 }
             } catch (err) {
                 msg.style.color = "#ff5555";
