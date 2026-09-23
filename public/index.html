@@ -4,150 +4,284 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>proeditSMP - Resmi Web Sitesi</title>
-    <!-- Supabase Resmi JavaScript Kütüphanesi -->
+    <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
-            background-color: #0d0d0d;
-            color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            text-align: center;
+            background-color: #121212;
+            color: #ffffff;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
-        .container {
-            max-width: 600px;
-            margin: 40px auto;
-            background: #141414;
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid #222;
-            box-shadow: 0 0 20px rgba(85, 255, 85, 0.1);
+        header {
+            text-align: center;
+            margin-top: 20px;
         }
         h1 {
             color: #55ff55;
-            font-size: 36px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
-        p {
-            color: #aaa;
-            font-size: 16px;
-        }
-        .card {
-            background: #1a1a1a;
-            border: 1px solid #55ff55;
-            padding: 20px;
-            border-radius: 10px;
+        /* Sekmeler Menüsü */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
             margin: 20px 0;
+            background: #1e1e1e;
+            padding: 8px;
+            border-radius: 10px;
         }
-        input {
-            width: 80%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 6px;
-            border: 1px solid #333;
-            background: #0d0d0d;
-            color: white;
-            font-size: 14px;
-        }
-        button {
-            background: #00aa00;
-            color: white;
+        .tab-btn {
+            background: transparent;
             border: none;
-            padding: 12px 24px;
-            font-weight: bold;
-            font-size: 15px;
+            color: #aaa;
+            padding: 10px 20px;
             cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
             border-radius: 6px;
+            transition: 0.3s;
+        }
+        .tab-btn.active, .tab-btn:hover {
+            background: #00aa00;
+            color: #fff;
+        }
+        /* Sekme İçerikleri */
+        .tab-content {
+            display: none;
+            width: 400px;
+            background: #1e1e1e;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button.action-btn {
+            width: 100%;
+            padding: 12px;
+            background: #00aa00;
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
             margin-top: 10px;
             transition: 0.2s;
         }
-        button:hover {
+        button.action-btn:hover {
             background: #008800;
         }
-        .download-btn {
-            display: inline-block;
-            background: #55ff55;
-            color: #000;
-            padding: 14px 28px;
-            text-decoration: none;
-            font-weight: bold;
-            border-radius: 8px;
-            font-size: 18px;
-            margin-top: 15px;
+        .msg {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
         }
-        .download-btn:hover {
-            background: #44cc44;
+        /* Admin Kartları */
+        .request-card {
+            background: #2a2a2a;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 13px;
         }
+        .admin-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .approve-btn { background: #00aa00; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .reject-btn { background: #aa0000; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <header>
         <h1>⚡ proeditSMP ⚡</h1>
-        <p>1.21.1 Özel Emek SMP & Box PvP Sunucusu</p>
+        <p>Resmi Portal & Topluluk Merkezi</p>
+    </header>
 
-        <!-- KAYIT OL ALANI -->
-        <div class="card">
-            <h3 style="color: #55ff55; margin-top: 0;">Hesap Oluştur (Kayıt Ol)</h3>
-            <input type="text" id="reg-username" placeholder="Kullanıcı Adı">
-            <br>
-            <input type="password" id="reg-password" placeholder="Şifre">
-            <br>
-            <button onclick="registerUser()">KAYIT OL</button>
-            <p id="reg-msg" style="margin-top: 10px; font-size: 14px; word-break: break-all;"></p>
-        </div>
+    <!-- Üst Sekmeler -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'tab-register')">Kayıt Ol</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-news')">Haberler & Sezon</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-youtube')">YouTube Kanalı</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-request')">Başvuru Yap</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-admin')">Yönetici Paneli</button>
+    </div>
 
-        <!-- LAUNCHER İNDİRME ALANI -->
-        <div style="margin-top: 30px;">
-            <h3>Launcher'ı İndir ve Oyuna Katıl!</h3>
-            <p>Sitemizden kayıt olduktan sonra özel Launcher'ımızı indirip giriş yapabilirsiniz.</p>
-            <a href="launcher.exe" class="download-btn" download>🚀 proeditSMP Launcher (.EXE) İndir</a>
+    <!-- 1. SEKME: KAYIT OL -->
+    <div id="tab-register" class="tab-content active">
+        <h2>Hesap Oluştur</h2>
+        <p style="font-size: 13px; color: #aaa;">Launcher üzerinden doğrudan giriş yapmak için buradan kayıt olun.</p>
+        <input type="text" id="reg-username" placeholder="Kullanıcı Adı">
+        <input type="password" id="reg-password" placeholder="Şifre">
+        <button class="action-btn" onclick="registerUser()">Kayıt Ol</button>
+        <div id="reg-msg" class="msg"></div>
+    </div>
+
+    <!-- 2. SEKME: HABERLER & SEZON -->
+    <div id="tab-news" class="tab-content">
+        <h2>📢 Sezon Değişimleri & Haberler</h2>
+        <div style="background: #2a2a2a; padding: 12px; border-radius: 6px; margin-top: 10px;">
+            <h4 style="color: #55ff55; margin: 0 0 5px 0;">Sezon 2 Başladı!</h4>
+            <p style="font-size: 13px; color: #ccc; margin: 0;">Yeni eklentiler, box pvp entegrasyonu ve sesli sohbet desteği aktif edildi. Keyifli oyunlar!</p>
         </div>
     </div>
 
-    <!-- DOĞRU URL İLE SUPABASE ENTEGRASYONU -->
+    <!-- 3. SEKME: YOUTUBE KANALI -->
+    <div id="tab-youtube" class="tab-content" style="text-align: center;">
+        <h2>🎥 YouTube Kanalımız</h2>
+        <p style="font-size: 13px; color: #aaa;">Sunucu videolarını ve duyuruları kaçırmamak için abone olun!</p>
+        <a href="https://youtube.com" target="_blank" style="display: inline-block; background: #ff0000; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 15px;">Kanalı Ziyaret Et</a>
+    </div>
+
+    <!-- 4. SEKME: BAŞVURU / İSTEK FORMU -->
+    <div id="tab-request" class="tab-content">
+        <h2>📝 Talep / Başvuru Formu</h2>
+        <input type="text" id="req-username" placeholder="Minecraft Kullanıcı Adınız">
+        <select id="req-category">
+            <option value="Mod Başvurusu">Mod Başvurusu</option>
+            <option value="Rehber Başvurusu">Rehber Başvurusu</option>
+            <option value="Medya / Video İsteği">Medya / Video İsteği</option>
+        </select>
+        <textarea id="req-message" placeholder="Talebinizi veya neden uygun olduğunuzu yazın..." rows="4"></textarea>
+        <button class="action-btn" onclick="sendRequest()">Talep Gönder</button>
+        <div id="req-resp-msg" class="msg"></div>
+    </div>
+
+    <!-- 5. SEKME: YÖNETİCİ PANELİ -->
+    <div id="tab-admin" class="tab-content">
+        <h2>🛡️ Yönetici Onay Paneli</h2>
+        <p style="font-size: 12px; color: #aaa;">Gelen talepleri buradan onaylayabilir veya silebilirsin.</p>
+        <div id="admin-requests-list" style="max-height: 300px; overflow-y: auto;">
+            Yükleniyor...
+        </div>
+    </div>
+
     <script>
+        // Supabase Bağlantısı
         const SUPABASE_URL = "https://mqiahijkvpmshxpzwcyl.supabase.co";
         const SUPABASE_KEY = "sb_publishable_FJ6mV_6Vwdi8vk-5cmdZKA_lX-yERsN";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Sekme Değiştirme Fonksiyonu
+        function switchTab(evt, tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.remove('active'));
 
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+
+            if (tabId === 'tab-admin') {
+                loadAdminRequests();
+            }
+        }
+
+        // Web Kayıt Ol Fonksiyonu
         async function registerUser() {
-            const username = document.getElementById("reg-username").value.trim();
-            const password = document.getElementById("reg-password").value.trim();
-            const msg = document.getElementById("reg-msg");
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value.trim();
+            const msgBox = document.getElementById('reg-msg');
 
             if (!username || !password) {
-                msg.style.color = "#ff5555";
-                msg.innerText = "Lütfen kullanıcı adı ve şifre girin!";
+                msgBox.style.color = "#ff5555";
+                msgBox.innerText = "Lütfen alanları doldurun!";
                 return;
             }
 
-            msg.style.color = "#ffaa00";
-            msg.innerText = "Kayıt yapılıyor...";
+            const { error } = await supabaseClient.from('users').insert([{ username, password }]);
 
-            try {
-                const { data, error } = await _supabase
-                    .from('users')
-                    .insert([{ username: username, password: password }]);
-
-                if (error) {
-                    if (error.code === "23505") {
-                        msg.style.color = "#ff5555";
-                        msg.innerText = "❌ Bu kullanıcı adı zaten alınmış!";
-                    } else {
-                        msg.style.color = "#ff5555";
-                        msg.innerText = "❌ Hata: " + error.message;
-                    }
-                } else {
-                    msg.style.color = "#55ff55";
-                    msg.innerText = "✅ Kayıt başarılı! Şimdi Launcher'ı indirip giriş yapabilirsiniz.";
-                }
-            } catch (err) {
-                msg.style.color = "#ff5555";
-                msg.innerText = "❌ Bağlantı Hatası: " + err.message;
+            if (error) {
+                msgBox.style.color = "#ff5555";
+                msgBox.innerText = "Bu kullanıcı adı zaten alınmış olabilir.";
+            } else {
+                msgBox.style.color = "#55ff55";
+                msgBox.innerText = "✅ Kayıt başarılı! Launcher ile giriş yapabilirsiniz.";
+                document.getElementById('reg-username').value = '';
+                document.getElementById('reg-password').value = '';
             }
+        }
+
+        // Kullanıcı Talep Gönderme
+        async function sendRequest() {
+            const username = document.getElementById('req-username').value.trim();
+            const category = document.getElementById('req-category').value;
+            const message = document.getElementById('req-message').value.trim();
+            const msgBox = document.getElementById('req-resp-msg');
+
+            if (!username || !message) {
+                msgBox.style.color = "#ff5555";
+                msgBox.innerText = "Lütfen adınızı ve mesajınızı yazın!";
+                return;
+            }
+
+            const { error } = await supabaseClient.from('requests').insert([{ username, category, message, status: 'Bekliyor' }]);
+
+            if (error) {
+                msgBox.style.color = "#ff5555";
+                msgBox.innerText = "Gönderilemedi, tabloyu kontrol edin.";
+            } else {
+                msgBox.style.color = "#55ff55";
+                msgBox.innerText = "✅ Talebiniz başarıyla gönderildi!";
+                document.getElementById('req-username').value = '';
+                document.getElementById('req-message').value = '';
+            }
+        }
+
+        // Admin Panelinde Talepleri Listeleme
+        async function loadAdminRequests() {
+            const listDiv = document.getElementById('admin-requests-list');
+            listDiv.innerHTML = "Yükleniyor...";
+
+            const { data, error } = await supabaseClient.from('requests').select('*').order('id', { ascending: false });
+
+            if (error || !data || data.length === 0) {
+                listDiv.innerHTML = "<p style='color:#aaa; text-align:center;'>Henüz talep yok.</p>";
+                return;
+            }
+
+            let html = "";
+            data.forEach(req => {
+                html += `
+                    <div class="request-card">
+                        <b>${req.username}</b> (${req.category})<br>
+                        <p style="margin: 5px 0; color: #ddd;">${req.message}</p>
+                        <span style="font-size: 11px; color: ${req.status === 'Onaylandı' ? '#55ff55' : (req.status === 'Reddedildi' ? '#ff5555' : '#ffaa00')}">Durum: ${req.status}</span>
+                        <div class="admin-btns">
+                            <button class="approve-btn" onclick="updateStatus(${req.id}, 'Onaylandı')">✔ Onayla</button>
+                            <button class="reject-btn" onclick="updateStatus(${req.id}, 'Reddedildi')">❌ Reddet</button>
+                        </div>
+                    </div>
+                `;
+            });
+            listDiv.innerHTML = html;
+        }
+
+        // Admin Durum Güncelleme (Onayla / Reddet)
+        async function updateStatus(id, newStatus) {
+            await supabaseClient.from('requests').update({ status: newStatus }).eq('id', id);
+            loadAdminRequests();
         }
     </script>
 </body>
