@@ -1,79 +1,116 @@
 const express = require('express');
-const { Rcon } = require('rcon-client');
-const fs = require('fs');
-const path = require('path');
-
+const session = require('express-session');
 const app = express();
-app.use(express.json());
-app.use(express.static('public'));
 
-const DATA_FILE = path.join(__dirname, 'users.json');
+app.use(express.urlencoded({ extended: true }));
+app.use(session({
+    secret: 'proedit_gizli_anahtar',
+    resave: false,
+    saveUninitialized: true
+}));
 
-function getUsers() {
-    if (!fs.existsSync(DATA_FILE)) return {};
-    try {
-        return JSON.parse(fs.readFileSync(DATA_FILE));
-    } catch (e) {
-        return {};
+// Sunucu verileri (Bellek üstünde tutulan örnek veriler)
+let gameStatus = "Aktif (Çevrimiçi)";
+let currentSeason = "Sezon 1: Nükleer Kıyamet";
+let applications = ["Ahmet_Pro - Yetkili Başvurusu", "Mehmet123 - Rehber Başvurusu"];
+let usersDb = { "proeditYT": "mustafa55" };
+
+app.get('/', (req, res) => {
+    const user = req.session.user;
+    let adminHtml = '';
+    
+    // Sadece proeditYT giriş yaptıysa yönetici panelini göster
+    if (user === 'proeditYT') {
+        adminHtml = `
+            <div style="background: #251a2a; border: 2px solid #ff00ff; margin-top: 20px; padding: 15px; border-radius: 8px;">
+                <h3 style="color: #ff00ff;">👑 YÖNETİCİ PANELİ (Sadece Sana Özel)</h3>
+                <form method="POST" action="/update_admin">
+                    <label>Sunucu Durumu:</label><br>
+                    <input type="text" name="new_status" value="${gameStatus}" style="width: 90%; padding: 10px; margin: 10px 0; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 5px;"><br>
+                    <label>Sezon Değiştir:</label><br>
+                    <input type="text" name="new_season" value="${currentSeason}" style="width: 90%; padding: 10px; margin: 10px 0; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 5px;"><br>
+                    <button type="submit" style="background: #ff00ff; color: white; font-weight: bold; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 95%;">Ayarları Güncelle</button>
+                </form>
+                <h4 style="text-align: left; color: #00ffcc;">Başvuranlar:</h4>
+                <ul style="text-align: left; font-size: 14px;">
+                    ${applications.map(app => `<li>${app}</li>`).join('')}
+                </ul>
+            </div>
+        `;
     }
-}
 
-function saveUsers(users) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
-}
-
-// KAYIT OL API
-app.post('/api/register', async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ message: 'Kullanıcı adı ve şifre zorunludur!' });
-
-    const users = getUsers();
-    const cleanUsername = username.trim();
-
-    if (users[cleanUsername.toLowerCase()]) {
-        return res.status(400).json({ message: 'Bu kullanıcı adı zaten kayıtlı!' });
+    let content = '';
+    if (!user) {
+        content = `
+            <h3>Giriş Yap veya Kayıt Ol</h3>
+            <form method="POST" action="/login">
+                <input type="text" name="username" placeholder="Kullanıcı Adı" required style="width: 90%; padding: 10px; margin: 10px 0; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 5px;"><br>
+                <input type="password" name="password" placeholder="Şifre" required style="width: 90%; padding: 10px; margin: 10px 0; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 5px;"><br>
+                <button type="submit" style="background: #00ffcc; color: black; font-weight: bold; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 95%;">Giriş Yap / Kayıt Ol</button>
+            </form>
+        `;
+    } else {
+        content = `
+            <p>Hoş geldin, <b>${user}</b>!</p>
+            <a href="/download_launcher"><button style="background: #ffaa00; color: black; font-weight: bold; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 95%;">Launcher İndir (.exe)</button></a>
+            <br><br>
+            <a href="/logout"><button style="background: #ff4444; color: white; font-weight: bold; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 95%;">Çıkış Yap</button></a>
+            ${adminHtml}
+        `;
     }
 
-    users[cleanUsername.toLowerCase()] = {
-        username: cleanUsername,
-        password: password,
-        registeredAt: new Date().toISOString()
-    };
-    saveUsers(users);
-
-    try {
-        const rcon = await Rcon.connect({
-            host: process.env.RCON_HOST || 'eu9-free.falixserver.net',
-            port: parseInt(process.env.RCON_PORT) || 20224,
-            password: process.env.RCON_PASSWORD || 'mustafaemir55',
-            timeout: 5000
-        });
-
-        await rcon.send(`eco give ${cleanUsername} 500000`);
-        await rcon.end();
-
-        return res.json({ message: 'Kayıt başarılı! 500.000$ ödülünüz aktarıldı.', username: cleanUsername });
-    } catch (error) {
-        return res.json({ message: 'Kayıt başarılı! (Ödül oyuna girince iletilecektir).', username: cleanUsername });
-    }
+    res.send(`
+        <!DOCTYPE html>
+        <html lang="tr">
+        <head>
+            <meta charset="UTF-8">
+            <title>ProEdit SMP</title>
+            <style>
+                body { background-color: #121212; color: #fff; font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+                .box { background: #1e1e1e; padding: 30px; border-radius: 10px; display: inline-block; width: 400px; box-shadow: 0 0 10px #00ffcc; }
+            </style>
+        </head>
+        <body>
+            <div class="box">
+                <h2>PROEDIT SMP</h2>
+                <p>Sunucu Durumu: <b>${gameStatus}</b> | Sezon: <b>${currentSeason}</b></p>
+                ${content}
+            </div>
+        </body>
+        </html>
+    `);
 });
 
-// GİRİŞ YAP API
-app.post('/api/login', (req, res) => {
+app.post('/login', (req, res) => {
     const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ message: 'Tüm alanları doldurun!' });
-
-    const users = getUsers();
-    const user = users[username.trim().toLowerCase()];
-
-    if (!user || user.password !== password) {
-        return res.status(401).json({ message: 'Kullanıcı adı veya şifre hatalı!' });
+    // Özel kurucu kontrolü
+    if (username === 'proeditYT' && password === 'mustafa55') {
+        req.session.user = 'proeditYT';
+    } else {
+        usersDb[username] = password;
+        req.session.user = username;
     }
-
-    return res.json({ message: 'Giriş başarılı!', username: user.username });
+    res.redirect('/');
 });
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-    console.log(`Sunucu ${PORT} portunda çalışıyor.`);
+app.post('/update_admin', (req, res) => {
+    if (req.session.user === 'proeditYT') {
+        gameStatus = req.body.new_status;
+        currentSeason = req.body.new_season;
+    }
+    res.redirect('/');
+});
+
+app.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/');
+    });
+});
+
+app.get('/download_launcher', (req, res) => {
+    res.send("Buraya launcher indirme dosyanı bağlayabilirsin kanka!");
+});
+
+app.listen(3000, () => {
+    console.log("Node.js sunucusu çalışıyor: http://localhost:3000");
 });
